@@ -1,23 +1,31 @@
+import { useDispatch, useSelector } from '@/services/store';
 import { Preloader, OrderInfoUI } from '@ui';
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+
+import {
+  fetchOrderByNumber,
+  selectSelectedOrder,
+  selectOrderByNumberLoading,
+} from '@services/slices/feed-slice';
+import { selectIngredients } from '@services/slices/ingredient-slice';
 
 import type { TIngredient } from '@utils-types';
 
 export const OrderInfo = (): React.JSX.Element => {
-  /** TODO: взять переменные orderData и ingredients из стора */
-  const orderData = {
-    createdAt: '',
-    ingredients: [],
-    _id: '',
-    status: '',
-    name: '',
-    updatedAt: 'string',
-    number: 0,
-  };
+  const { id } = useParams();
+  const dispatch = useDispatch();
 
-  const ingredients: TIngredient[] = [];
+  const orderData = useSelector(selectSelectedOrder);
+  const isLoading = useSelector(selectOrderByNumberLoading);
+  const ingredients: TIngredient[] = useSelector(selectIngredients);
 
-  /* Готовим данные для отображения */
+  useEffect(() => {
+    if (id) {
+      void dispatch(fetchOrderByNumber(Number(id)));
+    }
+  }, [dispatch, id]);
+
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 
@@ -38,7 +46,6 @@ export const OrderInfo = (): React.JSX.Element => {
         } else {
           acc[item].count++;
         }
-
         return acc;
       },
       {}
@@ -57,7 +64,7 @@ export const OrderInfo = (): React.JSX.Element => {
     };
   }, [orderData, ingredients]);
 
-  if (!orderInfo) {
+  if (isLoading || !orderInfo) {
     return <Preloader />;
   }
 

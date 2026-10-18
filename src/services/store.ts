@@ -1,12 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch as dispatchHook, useSelector as selectorHook } from 'react-redux';
 
-import { rootReducer } from './rootReducer';
+import { RootReducer } from './rootReducer';
 const store = configureStore({
-  reducer: rootReducer,
+  reducer: RootReducer,
 });
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type RootState = ReturnType<typeof RootReducer>;
 
 export type AppDispatch = typeof store.dispatch;
 
