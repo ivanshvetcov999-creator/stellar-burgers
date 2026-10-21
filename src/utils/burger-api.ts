@@ -53,6 +53,8 @@ export const refreshToken = (): Promise<TRefreshResponse> =>
       return refreshData;
     });
 
+/* Это предпочтительны способ обновления токена, но допустимы и другие, главное,
+что бы обновление токена работало корректно */
 export const fetchWithRefresh = async <T>(
   url: RequestInfo,
   options: RequestInit
