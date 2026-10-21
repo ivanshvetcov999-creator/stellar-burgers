@@ -5,8 +5,8 @@ import { useEffect } from 'react';
 
 import {
   getFeeds,
-  selectFeedOrders,
   selectFeedLoading,
+  selectFeedOrders,
 } from '@services/slices/feed-slice';
 
 import type { AppDispatch } from '@/services/store';
@@ -21,7 +21,7 @@ export const Feed = (): React.JSX.Element => {
   };
 
   useEffect(() => {
-    handleGetFeeds();
+    void dispatch(getFeeds());
   }, [dispatch]);
 
   if (isLoading) {

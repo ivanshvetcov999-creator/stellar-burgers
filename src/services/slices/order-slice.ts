@@ -22,7 +22,7 @@ type OrderState = {
   orders: TOrder[];
   isOrderRequest: boolean;
   isOrdersLoading: boolean;
-  error: Error | null;
+  error: string | null;
   orderSuccess: boolean;
 };
 
@@ -56,10 +56,11 @@ const orderSlice = createSlice({
         state.isOrderRequest = false;
         state.order = action.payload;
         state.orderSuccess = true;
+        state.error = null;
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.isOrderRequest = false;
-        state.error = new Error(action.error.message ?? 'Ошибка');
+        state.error = action.error.message ?? 'Ошибка создания заказа';
         state.orderSuccess = false;
       })
 
@@ -70,22 +71,24 @@ const orderSlice = createSlice({
       .addCase(getOrders.fulfilled, (state, action) => {
         state.isOrdersLoading = false;
         state.orders = action.payload;
+        state.error = null;
       })
       .addCase(getOrders.rejected, (state, action) => {
         state.isOrdersLoading = false;
-        state.error = new Error(action.error.message ?? 'Ошибка загрузки заказов');
+        state.error = action.error.message ?? 'Ошибка загрузки заказов';
       });
   },
 });
 
 export const { clearOrder } = orderSlice.actions;
+
 export const selectOrder = (state: { order: OrderState }): TOrder | null =>
   state.order.order;
 
 export const selectOrderRequest = (state: { order: OrderState }): boolean =>
   state.order.isOrderRequest;
 
-export const selectOrderError = (state: { order: OrderState }): Error | null =>
+export const selectOrderError = (state: { order: OrderState }): string | null =>
   state.order.error;
 
 export const selectOrderSuccess = (state: { order: OrderState }): boolean =>

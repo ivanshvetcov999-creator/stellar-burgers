@@ -24,7 +24,7 @@ export const Login = (): React.JSX.Element => {
 
   return (
     <LoginUI
-      errorText={error?.message ?? ''}
+      errorText={error ?? ''}
       email={email}
       setEmail={setEmail}
       password={password}

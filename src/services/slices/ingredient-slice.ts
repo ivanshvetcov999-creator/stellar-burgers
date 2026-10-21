@@ -4,14 +4,15 @@ import { getIngredientsApi } from '@utils/burger-api';
 
 import type { TIngredient } from '@utils-types';
 
-export const fetchIngredients = createAsyncThunk('ingredients/fetchAll', async () => {
-  return await getIngredientsApi();
-});
+export const fetchIngredients = createAsyncThunk(
+  'ingredients/fetchAll',
+  async () => await getIngredientsApi()
+);
 
 type IngredientsState = {
   ingredients: TIngredient[];
   isIngredientsLoading: boolean;
-  ingredientsError: Error | null;
+  ingredientsError: string | null;
 };
 
 const initialState: IngredientsState = {
@@ -33,10 +34,11 @@ const ingredientsSlice = createSlice({
       .addCase(fetchIngredients.fulfilled, (state, action) => {
         state.isIngredientsLoading = false;
         state.ingredients = action.payload;
+        state.ingredientsError = null;
       })
       .addCase(fetchIngredients.rejected, (state, action) => {
         state.isIngredientsLoading = false;
-        state.ingredientsError = new Error(action.error.message ?? 'Ошибка');
+        state.ingredientsError = action.error.message ?? 'Ошибка загрузки ингредиентов';
       });
   },
   selectors: {

@@ -23,7 +23,7 @@ export const Register = (): React.JSX.Element => {
 
   return (
     <RegisterUI
-      errorText={error?.message ?? ''}
+      errorText={error ?? ''}
       email={email}
       userName={userName}
       password={password}

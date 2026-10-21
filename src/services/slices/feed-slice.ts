@@ -2,14 +2,9 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 import { getFeedsApi, getOrderByNumberApi } from '@utils/burger-api';
 
-import type { TOrder } from '@utils-types';
+import type { TFeedState, TOrder } from '@utils-types';
 
-type FeedState = {
-  orders: TOrder[];
-  total: number;
-  totalToday: number;
-  isLoading: boolean;
-  error: Error | null;
+type FeedState = TFeedState & {
   selectedOrder: TOrder | null;
   isOrderLoading: boolean;
 };
@@ -45,7 +40,6 @@ const feedSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-
       .addCase(getFeeds.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -55,12 +49,12 @@ const feedSlice = createSlice({
         state.orders = action.payload.orders;
         state.total = action.payload.total;
         state.totalToday = action.payload.totalToday;
+        state.error = null;
       })
       .addCase(getFeeds.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = new Error(action.error.message ?? 'Ошибка загрузки ленты');
+        state.error = action.error.message ?? 'Ошибка загрузки ленты';
       })
-
       .addCase(fetchOrderByNumber.pending, (state) => {
         state.isOrderLoading = true;
         state.error = null;
@@ -68,10 +62,11 @@ const feedSlice = createSlice({
       .addCase(fetchOrderByNumber.fulfilled, (state, action) => {
         state.isOrderLoading = false;
         state.selectedOrder = action.payload.orders[0] ?? null;
+        state.error = null;
       })
       .addCase(fetchOrderByNumber.rejected, (state, action) => {
         state.isOrderLoading = false;
-        state.error = new Error(action.error.message ?? 'Ошибка загрузки заказа');
+        state.error = action.error.message ?? 'Ошибка загрузки заказа';
       });
   },
 });
@@ -89,7 +84,7 @@ export const selectFeedTotalToday = (state: { feed: FeedState }): number =>
 export const selectFeedLoading = (state: { feed: FeedState }): boolean =>
   state.feed.isLoading;
 
-export const selectFeedError = (state: { feed: FeedState }): Error | null =>
+export const selectFeedError = (state: { feed: FeedState }): string | null =>
   state.feed.error;
 
 export const selectSelectedOrder = (state: { feed: FeedState }): TOrder | null =>

@@ -26,7 +26,7 @@ import {
 } from '@pages';
 import { Preloader } from '@ui';
 import { useEffect } from 'react';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 
 import type { AppContentProps } from './type';
 
@@ -72,7 +72,7 @@ const AppContent = ({
     return (
       <p className={`${styles.message} text text_type_main-medium`}>
         Не удалось загрузить ингредиенты
-        {error.message ? `: ${error.message}` : '.'}
+        {error ? `: ${error}` : '.'}
       </p>
     );
   }
@@ -86,16 +86,50 @@ const AppContent = ({
   return <RouteComponent />;
 };
 
+const OrderDetailsPage = (): React.JSX.Element => {
+  const { id } = useParams();
+
+  return (
+    <div className={styles.detailPageWrap}>
+      <h2 className={`text text_type_main-large ${styles.detailHeader}`}>
+        Детали заказа №{id}
+      </h2>
+      <OrderInfo />
+    </div>
+  );
+};
+
+const IngredientDetailsPage = (): React.JSX.Element => (
+  <div className={styles.detailPageWrap}>
+    <h2 className={`text text_type_main-large ${styles.detailHeader}`}>
+      Детали ингредиента
+    </h2>
+    <IngredientDetails />
+  </div>
+);
+
+const OrderDetailsModal = ({ onClose }: { onClose: () => void }): React.JSX.Element => {
+  const { id } = useParams();
+
+  return (
+    <Modal title={`Детали заказа №${id}`} onClose={onClose}>
+      <OrderInfo />
+    </Modal>
+  );
+};
+
 const RouteComponent = (): React.JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = location.state as { background?: Location };
+  const locationState = location.state as { background?: typeof location } | null;
   const background = locationState?.background;
+
   return (
     <>
       <Routes location={background ?? location}>
         <Route path="/" element={<ConstructorPage />} />
         <Route path="/feed" element={<Feed />} />
+
         <Route
           path="/login"
           element={
@@ -144,17 +178,19 @@ const RouteComponent = (): React.JSX.Element => {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<NotFound404 />} />
-        <Route path="/feed/:id" element={<OrderInfo />} />
-        <Route path="/ingredients/:id" element={<IngredientDetails />} />
+
+        <Route path="/feed/:id" element={<OrderDetailsPage />} />
+        <Route path="/ingredients/:id" element={<IngredientDetailsPage />} />
         <Route
           path="/profile/orders/:id"
           element={
             <ProtectedRoute>
-              <OrderInfo />
+              <OrderDetailsPage />
             </ProtectedRoute>
           }
         />
+
+        <Route path="*" element={<NotFound404 />} />
       </Routes>
 
       {background && (
@@ -162,21 +198,19 @@ const RouteComponent = (): React.JSX.Element => {
           <Route
             path="/feed/:id"
             element={
-              <Modal
-                title="Детали заказа"
+              <OrderDetailsModal
                 onClose={() => {
                   void navigate(-1);
                 }}
-              >
-                <OrderInfo />
-              </Modal>
+              />
             }
           />
+
           <Route
             path="/ingredients/:id"
             element={
               <Modal
-                title={'Детали ингредиента'}
+                title="Детали ингредиента"
                 onClose={() => {
                   void navigate(-1);
                 }}
@@ -185,18 +219,16 @@ const RouteComponent = (): React.JSX.Element => {
               </Modal>
             }
           />
+
           <Route
             path="/profile/orders/:id"
             element={
               <ProtectedRoute>
-                <Modal
-                  title="Детали заказа"
+                <OrderDetailsModal
                   onClose={() => {
                     void navigate(-1);
                   }}
-                >
-                  <OrderInfo />
-                </Modal>
+                />
               </ProtectedRoute>
             }
           />
